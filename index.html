@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soccer Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        canvas {
+            border: 2px solid black;
+            margin: 20px auto;
+        }
+        #score {
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+    <div id="score">Score: 0</div>
+    <script>
+        // Get the canvas element
+        var canvas = document.getElementById("gameCanvas");
+        var ctx = canvas.getContext("2d");
+
+        // Set the ball position and velocity
+        var ballX = canvas.width / 2;
+        var ballY = canvas.height / 2;
+        var ballRadius = 10;
+        var dx = 2;
+        var dy = -2;
+
+        // Set the goal dimensions
+        var goalWidth = 100;
+        var goalHeight = 50;
+        var goalY = (canvas.height - goalHeight) / 2;
+
+        // Left goal
+        var leftGoalX = 0;
+        // Right goal
+        var rightGoalX = canvas.width - goalWidth;
+
+        // Score
+        var score = 0;
+
+        // Draw the ball
+        function drawBall() {
+            ctx.beginPath();
+            ctx.arc(ballX, ballY, ballRadius, 0, Math.PI*2);
+            ctx.fillStyle = "#0095DD";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        // Draw the goal
+        function drawGoal(x) {
+            ctx.beginPath();
+            ctx.rect(x, goalY, goalWidth, goalHeight);
+            ctx.fillStyle = "rgba(255, 0, 0, 0.5)";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        // Update the ball position
+        function updateBallPosition() {
+            ballX += dx;
+            ballY += dy;
+
+            // Ball bounces off the walls
+            if(ballX + dx > canvas.width-ballRadius || ballX + dx < ballRadius) {
+                dx = -dx;
+            }
+            if(ballY + dy > canvas.height-ballRadius || ballY + dy < ballRadius) {
+                dy = -dy;
+            }
+        }
+
+        // Check for collisions with the goal
+        function checkGoalCollision() {
+            if(ballX > leftGoalX && ballX < leftGoalX + goalWidth && ballY > goalY && ballY < goalY + goalHeight) {
+                // If the ball enters the left goal, increase score and reset ball position
+                score++;
+                ballX = canvas.width / 2;
+                ballY = canvas.height / 2;
+            }
+            if(ballX > rightGoalX && ballX < rightGoalX + goalWidth && ballY > goalY && ballY < goalY + goalHeight) {
+                // If the ball enters the right goal, increase score and reset ball position
+                score++;
+                ballX = canvas.width / 2;
+                ballY = canvas.height / 2;
+            }
+            // Update the score display
+            document.getElementById("score").textContent = "Score: " + score;
+        }
+
+        // Event listener to control the ball with arrow keys
+        document.addEventListener("keydown", function(event) {
+            if(event.key === "ArrowUp") {
+                dy = -2; // 위쪽 화살표를 누르면 공이 위로 이동
+            } else if(event.key === "ArrowDown") {
+                dy = 2; // 아래쪽 화살표를 누르면 공이 아래로 이동
+            } else if(event.key === "ArrowLeft") {
+                dx = -2; // 왼쪽 화살표를 누르면 공이 왼쪽으로 이동
+            } else if(event.key === "ArrowRight") {
+                dx = 2; // 오른쪽 화살표를 누르면 공이 오른쪽으로 이동
+            }
+        });
+
+        // Main game loop
+        function draw() {
+            // Clear the canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw the ball
+            drawBall();
+
+            // Draw the left goal
+            drawGoal(leftGoalX);
+
+            // Draw the right goal
+            drawGoal(rightGoalX);
+
+            // Update the ball position
+            updateBallPosition();
+
+            // Check for collisions with the goal
+            checkGoalCollision();
+
+            // Call the draw function again to create animation
+            requestAnimationFrame(draw);
+        }
+
+        // Start the
